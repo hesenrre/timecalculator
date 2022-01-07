@@ -28,7 +28,9 @@ module Timecalculator
 
     def full_day_minutes_between_dates_with_boundaries(dt1, dt2)
       minutes = 0
-      minutes += working_minutes_between_to_times({ h: dt1.hour, m: dt1.minute }, { h: @day_hour_end }) unless holiday?(dt1)
+      unless holiday?(dt1) || dt1.hour >= @day_hour_end
+        minutes += working_minutes_between_to_times({ h: dt1.hour, m: dt1.minute }, { h: @day_hour_end })
+      end
       minutes += full_day_minutes_between_dates(dt1, dt2)
       minutes += working_minutes_between_to_times({ h: @day_hour_begin }, { h: dt2.hour, m: dt2.minute }) unless holiday?(dt2)
       minutes
@@ -58,14 +60,22 @@ module Timecalculator
     def start_time(date_time)
       hour = date_time.fetch(:h, 0)
       minute = date_time.fetch(:m, 0)
-      hour = + 1, minute = 0 if @lunch_time.include?(hour)
+      if @lunch_time.include?(hour)
+        hour, minute = hour + 1, 0
+      elsif hour < @day_hour_begin
+        hour, minute = @day_hour_begin, 0
+      end
       { h: hour, m: minute }
     end
 
     def ending_time(date_time)
       hour = date_time.fetch(:h, 0)
       minute = date_time.fetch(:m, 0)
-      minute = 0 if hour == @lunch_time.include?(hour)
+      if hour == @lunch_time.include?(hour)
+        minute = 0
+      elsif hour >= @day_hour_end
+        hour, minute = @day_hour_end, 0
+      end
       { h: hour, m: minute }
     end
 
@@ -87,13 +97,13 @@ module Timecalculator
     end
 
     def min_max_time(time1 = {}, time2 = {})
-      min = time1.fetch(:h, 0) < time2.fetch(:h, 0) ? time1 : time2
-      max = time1.fetch(:h, 0) > time2.fetch(:h, 0) ? time1 : time2
-      if min.fetch(:h, 0) == max.fetch(:h, 0)
-        min = min.fetch(:m, 0) < max.fetch(:m, 0) ? min : max
-        max = min.fetch(:m, 0) > max.fetch(:m, 0) ? min : max
+      if time1.fetch(:h, 0) == time2.fetch(:h, 0)
+        { min: time1.fetch(:m, 0) < time2.fetch(:m, 0) ? time1 : time2,
+          max: time1.fetch(:m, 0) > time2.fetch(:m, 0) ? time1 : time2 }
+      else
+        { min: time1.fetch(:h, 0) < time2.fetch(:h, 0) ? time1 : time2,
+          max: time1.fetch(:h, 0) > time2.fetch(:h, 0) ? time1 : time2 }
       end
-      { min: min, max: max }
     end
 
     def days_between_dates(date1, date2)

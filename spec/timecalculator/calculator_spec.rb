@@ -87,6 +87,11 @@ RSpec.describe Timecalculator::Calculator do
     expect(calculator.working_minutes_between_to_datetimes(DateTime.parse('2020-04-27 09:00'), DateTime.parse('2020-05-04 18:00'))).to eq(2400)
   end
 
+  it 'identifies 2183 minutes between 31/12/2019 13:01 - 08/01/2020 09:23 with holliday' do
+    calculator = Timecalculator::Calculator.new(holidays: [Date.parse('01-01-2020')])
+    expect(calculator.working_minutes_between_to_datetimes(DateTime.parse('2019-12-31 13:01'), DateTime.parse('2020-01-08 09:23'))).to eq(2183)
+  end
+
   it 'identifies 2400 minutes between 27/04/2020 9:00 - 04/05/2020 18:00 strings in batch with holliday' do
     calculator = Timecalculator::Calculator.new(holidays: [Date.parse('01-05-2020')])
     expect(calculator.batch_working_minutes_between_to_datetimes([['2020-04-27 09:00', '2020-05-04 18:00']])).to eq(2400)
