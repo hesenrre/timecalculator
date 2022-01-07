@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["hesenrre@gmail.com"]
 
   spec.summary       = %q{Time calculator between two dates}
-  spec.description   = %q{Time calculator between two dates}
-  # spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.description   = %q{Gem to calculate times between two dates based on working ours and days}
+  spec.homepage      = "https://github.com/hesenrre/timecalculator"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
